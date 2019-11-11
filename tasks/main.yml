@@ -1,0 +1,60 @@
+---
+# tasks file for install_python_pip_and_packages
+
+- name: "Install Python, Documentation and Graphviz Packages Needed"
+  package:
+    name: "{{ python_packages }}"
+    state: present
+  become: true
+
+- name: "Download and install pyenv {{ pyenv_version }}"
+  git:
+    repo: https://github.com/pyenv/pyenv.git
+    dest: /opt/pyenv
+    clone: yes
+    version: "{{ pyenv_version }}"
+
+- name: "Add Global Env Variables and Update PATH to include pyenv"
+  blockinfile:
+    path: /etc/profile
+    block: |
+      PYENV_ROOT="/opt/pyenv"
+      PYTHON27_VERSION="{{ python27_version }}"
+      PYTHON34_VERSION="{{ python34_version }}"
+      PYTHON35_VERSION="{{ python35_version }}"
+      PYTHON36_VERSION="{{ python36_version }}"
+      PYTHON37_VERSION="{{ python37_version }}"
+      PATH="$PYENV_ROOT/bin:$PATH"
+      if command -v pyenv 1>/dev/null 2>&1; then
+        eval "$(pyenv init -)"
+      fi
+    marker: "# {mark} ANSIBLE MANAGED BLOCK {mark} #"
+  notify: "source env and path"
+
+#- name: "Check pyenv global command"
+#  set_fact:
+#    pyenv_command: 'pyenv global system {{ python37_version }} {{ python36_version }} {{ python35_version }}'
+
+- name: "Install Python Versions via pyenv"
+  block:
+    - name: 'Install Python {{ python27_version }}'
+      command: pyenv install -s "$PYTHON27_VERSION"
+    - name: 'Install Python {{ python34_version }}'
+      command: pyenv install -s "$PYTHON34_VERSION"
+    - name: 'Install Python {{ python35_version }}'
+      command: pyenv install -s "$PYTHON35_VERSION"
+    - name: 'Install Python {{ python36_version }}'
+      command: pyenv install -s "$PYTHON36_VERSION"
+    - name: 'Install Python {{ python37_version }}'
+      command: pyenv install -s "$PYTHON37_VERSION"
+    - name: 'Set pyenv global'
+      command: "{{ pyenv_command }}"
+  become: true
+
+- name: "Ensure pip_install_packages are installed"
+  pip:
+    name: "{{ item.name | default(item) }}"
+    version: "{{ item.version | default(omit) }}"
+    virtualenv: "{{ item.virtualenv | default(omit) }}"
+    state: "{{ item.state | default(omit) }}"
+  with_items: "{{ pip_packages }}"
