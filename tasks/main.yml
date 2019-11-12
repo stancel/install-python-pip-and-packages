@@ -14,36 +14,84 @@
     clone: yes
     version: "{{ pyenv_version }}"
 
+- name: "Ensure PATH includes pyenv shims and bin directories"
+  lineinfile:
+    path: /etc/environment
+    regexp: '^PATH='
+    line: PATH=/opt/pyenv/shims:/opt/pyenv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin
+
 - name: "Add Global Env Variables and Update PATH to include pyenv"
   blockinfile:
-    path: /etc/profile
+    path: /etc/environment
     block: |
-      PYENV_ROOT="/opt/pyenv"
+      PYENV_ROOT=/opt/pyenv
       PYTHON27_VERSION="{{ python27_version }}"
       PYTHON34_VERSION="{{ python34_version }}"
       PYTHON35_VERSION="{{ python35_version }}"
       PYTHON36_VERSION="{{ python36_version }}"
       PYTHON37_VERSION="{{ python37_version }}"
+    marker: "# {mark} ANSIBLE MANAGED BLOCK {mark} #"
+  notify: "source env and path"
+
+- name: "Source /etc/environment - this does not seem to work"
+  shell: exec $SHELL
+
+- name: "Determine if user does or does not have a ~/.bashrc already"
+  stat: 
+    path: /{{ item }}/.bashrc
+  register: has_bashrc
+  with_items: "{{ users_to_install_pyenv_for }}"
+
+- name: "Make sure that the ~/.bashrc file exists for each user"
+  become: true
+  file:
+    path: /{{ item.item }}/.bashrc
+    state: touch
+    owner: "{{ item.item }}"
+    group: "{{ item.item }}"
+    mode: 0644
+    modification_time: now
+    access_time: now
+  with_items: '{{ has_bashrc.results }}'
+  when: item.stat.exists  
+  #when: p.stat.exists is defined and not p.stat.exists
+
+- name: "Update PATH to include pyenv for list of users ~/.bashrc"
+  blockinfile:
+    path: /{{ item }}/.bashrc
+    block: |
+      export PYENV_ROOT="/opt/pyenv"
       PATH="$PYENV_ROOT/bin:$PATH"
       if command -v pyenv 1>/dev/null 2>&1; then
         eval "$(pyenv init -)"
       fi
     marker: "# {mark} ANSIBLE MANAGED BLOCK {mark} #"
-  notify: "source env and path"
+  with_items: "{{ users_to_install_pyenv_for }}"
+
+- name: "Source each user's ~/.bashrc"
+  shell: . /{{ item }}/.bashrc
+  with_items: "{{ users_to_install_pyenv_for }}"
 
 #- name: "Check pyenv global command"
 #  set_fact:
 #    pyenv_command: 'pyenv global system {{ python37_version }} {{ python36_version }} {{ python35_version }}'
 
 - name: "Install Python Versions via pyenv"
+  environment:
+    PYENV_ROOT: /opt/pyenv
+    PATH: '/opt/pyenv/bin:{{ ansible_env.PATH }}'
+    PYTHON34_VERSION: '{{ python34_version }}'
+    PYTHON35_VERSION: '{{ python35_version }}'
+    PYTHON36_VERSION: '{{ python36_version }}'
+    PYTHON37_VERSION: '{{ python37_version }}'
   block:
-    - name: 'Install Python {{ python27_version }}'
+    - name: "Install Python {{ python27_version }}"
       command: pyenv install -s "$PYTHON27_VERSION"
-    - name: 'Install Python {{ python34_version }}'
+    - name: "Install Python {{ python34_version }}"
       command: pyenv install -s "$PYTHON34_VERSION"
-    - name: 'Install Python {{ python35_version }}'
-      command: pyenv install -s "$PYTHON35_VERSION"
-    - name: 'Install Python {{ python36_version }}'
+    - name: "Install Python {{ python35_version }}"
+      command: pyenv install -s "$PYTHON35_VERSION"   
+    - name: "Install Python {{ python36_version }}"
       command: pyenv install -s "$PYTHON36_VERSION"
     - name: 'Install Python {{ python37_version }}'
       command: pyenv install -s "$PYTHON37_VERSION"
@@ -58,3 +106,10 @@
     virtualenv: "{{ item.virtualenv | default(omit) }}"
     state: "{{ item.state | default(omit) }}"
   with_items: "{{ pip_packages }}"
+  ignore_errors: yes
+
+- name: "Using pip from the command line to ensure pyenv pip is used"
+  command: pip install {{ item }}
+  with_items: "{{ pip_packages }}"
+
+  

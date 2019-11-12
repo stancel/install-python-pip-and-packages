@@ -2,4 +2,4 @@
 # handlers file for install_python_pip_and_packages
 
 - name: "source env and path"
-  shell: source /etc/profile
+  shell: exec $SHELL

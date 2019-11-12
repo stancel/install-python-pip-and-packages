@@ -1,17 +1,32 @@
 ---
 # vars file for install_python_pip_and_packages
 
+users_to_install_pyenv_for:
+  - root
+
 #####     Optional Variables      #####
 
 ##Python, Documentation and Graphviz Packages Needed for Installation and Documentation Sites
 #python_packages:
 #  - build-essential
-#  - libssl-dev
+#  - libssl1.0-dev
 #  - libffi-dev
+#  - zlib1g-dev
+#  - libbz2-dev
+#  - libreadline-dev
+#  - libsqlite3-dev
+#  - wget
+#  - curl
+#  - llvm
+#  - libncurses5-dev
+#  - libncursesw5-dev
+#  - xz-utils
+#  - liblzma-dev
+#  - python-openssl
+#  - git
 #  - ca-certificates
 #  - python
 #  - python-dev
-#  - python-openssl
 #  - python-pip
 #  - python-pip-whl
 #  - python-setuptools
@@ -40,7 +55,7 @@
 #python35_version: 3.5.8
 #python36_version: 3.6.9
 #python37_version: 3.7.5
-#pyenv_command: "pyenv global {{ python37_version }}"
+#pyenv_command: "pyenv global {{ python37_version }} system"
 #
 ##Pip Packages Needed to Install
 ##  This will need to be done for each version of Python installed if using other than the global version
