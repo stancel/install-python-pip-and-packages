@@ -80,6 +80,7 @@
   environment:
     PYENV_ROOT: /opt/pyenv
     PATH: '/opt/pyenv/bin:{{ ansible_env.PATH }}'
+    PYTHON27_VERSION: '{{ python27_version }}'
     PYTHON34_VERSION: '{{ python34_version }}'
     PYTHON35_VERSION: '{{ python35_version }}'
     PYTHON36_VERSION: '{{ python36_version }}'
@@ -98,6 +99,7 @@
     - name: 'Set pyenv global'
       command: "{{ pyenv_command }}"
   become: true
+  when: true == true
 
 - name: "Ensure pip_install_packages are installed"
   pip:
@@ -111,5 +113,3 @@
 - name: "Using pip from the command line to ensure pyenv pip is used"
   command: pip install {{ item }}
   with_items: "{{ pip_packages }}"
-
-  
