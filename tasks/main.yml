@@ -99,7 +99,6 @@
     - name: 'Set pyenv global'
       command: "{{ pyenv_command }}"
   become: true
-  when: true == true
 
 - name: "Ensure pip_install_packages are installed"
   pip:
