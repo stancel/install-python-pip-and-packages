@@ -11,7 +11,15 @@ None
 Role Variables
 --------------
 
-Python, Documentation and Graphviz Packages Needed for Installation and Documentation Sites
+List of home directories of users where pyenv shims and PATH are installed into the `.bashrc` file. Do not include a trailing slash - ex. `/home/myuser` instead of `/home/myuser/`. The default includes the root user's home directory - `/root`. 
+This list is required and cannot be blank.
+
+```
+users_home_directories_to_install_pyenv_for:
+  - /root
+```
+
+Python, Documentation and Graphviz Packages Needed for Installation and Documentation Sites. The defaults are listed below.
 
 ```
 python_packages:
@@ -56,7 +64,7 @@ python_packages:
   - pandoc
 ```
 
-PyEnv Info to Install and Setup
+PyEnv Info to Install and Setup. Defaults listed below.
 
 ```
 pyenv_version: v1.2.15
@@ -68,7 +76,7 @@ python37_version: 3.7.5
 pyenv_command: "pyenv global {{ python37_version }} system"
 ```
 
-Pip Packages Needed to Install. This will need to be done for each version of Python installed if using other than the global version
+Pip Packages Needed to Install. This will need to be done for each version of Python installed if using other than the global version. Defaults listed below.
 
 ```
 pip_packages:
@@ -98,6 +106,28 @@ Including an example of how to use your role (for instance, with variables passe
 	    - stancel.install_python_pip_and_packages
 ```
 
+or 
+
+```
+	- hosts: your_server 
+	  vars:
+		pyenv_version: v1.2.15
+		users_home_directories_to_install_pyenv_for:
+		  - /home/{{ ansible_user }}
+		  - /home/myuser
+		pip_packages:
+          - sphinx
+          - sphinx-autobuild
+          - sphinx-intl
+          - sphinx_rtd_theme
+          - recommonmark
+          - pymysql
+        pyenv_command: "pyenv global {{ python37_version }} {{ python36_version }} system"
+	  roles:
+	    - stancel.install_python_pip_and_packages
+```
+
+
 License
 -------
 
@@ -106,4 +136,4 @@ GPLv3
 Author Information
 ------------------
 
-[Brad Stance](https://github.com/stancel)
+[Brad Stancel](https://github.com/stancel)

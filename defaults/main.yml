@@ -1,6 +1,11 @@
 ---
 # defaults file for install_python_pip_and_packages
 
+# List of home directories of users where pyenv shims and PATH are installed into the .bashrc file
+# Do not include a trailing slash - ex. /home/myuser instead of /home/myuser/
+users_home_directories_to_install_pyenv_for:
+  - /root
+
 # Python, Documentation and Graphviz Packages Needed for Installation and Documentation Sites
 python_packages:
   - build-essential

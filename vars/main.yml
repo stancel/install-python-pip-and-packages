@@ -1,10 +1,12 @@
 ---
 # vars file for install_python_pip_and_packages
 
-users_to_install_pyenv_for:
-  - root
-
 #####     Optional Variables      #####
+
+# List of home directories of users where pyenv shims and PATH are installed into the .bashrc file
+# Do not include a trailing slash - ex. /home/myuser instead of /home/myuser/
+#users_home_directories_to_install_pyenv_for:
+#  - /root
 
 ##Python, Documentation and Graphviz Packages Needed for Installation and Documentation Sites
 #python_packages:
@@ -47,7 +49,7 @@ users_to_install_pyenv_for:
 #  - python3-gv
 #  - xdot
 #  - pandoc
-#
+
 ##PyEnv Info to Install and Setup
 #pyenv_version: v1.2.15
 #python27_version: 2.7.17
@@ -56,7 +58,7 @@ users_to_install_pyenv_for:
 #python36_version: 3.6.9
 #python37_version: 3.7.5
 #pyenv_command: "pyenv global {{ python37_version }} system"
-#
+
 ##Pip Packages Needed to Install
 ##  This will need to be done for each version of Python installed if using other than the global version
 #pip_packages:
